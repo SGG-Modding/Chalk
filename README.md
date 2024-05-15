@@ -1,2 +1,2 @@
-# DemonDaemon
-Adapter to allow mods to be designed for both [ReturnOfModding](https://github.com/SGG-Modding/Hell2Modding) and [ModImporter](https://github.com/SGG-Modding/ModImporter) for Hades II
+# Chalk
+System for automatically managing config as both toml and lua for [ReturnOfModding](https://github.com/SGG-Modding/Hell2Modding) on Hades II.
