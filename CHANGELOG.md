@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed `auto` so it uses the correct path for loading the lua file
 - Fixed some incorrect types in the definitions
 
 

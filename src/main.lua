@@ -223,8 +223,6 @@ function public.auto(config_lua,config_cfg,descript,section,is_newer)
 		config_lua = default_config_lua
 	end
 	if env and env._PLUGIN then
-		rom.path.create_directory(env._PLUGIN.config_mod_folder_path)
-		config_lua = rom.path.combine(env._PLUGIN.plugins_mod_folder_path, config_lua)
 		if config_cfg ~= nil then
 			config_cfg = rom.path.combine(rom.paths.config(),env._PLUGIN.guid .. '-' .. config_cfg)
 		else
