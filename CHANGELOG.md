@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.1] - 2024-05-19
+
 ### Changed
 
 - Retroactively update changelog
@@ -27,6 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial Thunderstore release.
 
-[unreleased]: https://github.com/SGG-Modding/Chalk/compare/2.0.0...HEAD
+[unreleased]: https://github.com/SGG-Modding/Chalk/compare/2.0.1...HEAD
+[2.0.1]: https://github.com/SGG-Modding/Chalk/compare/2.0.0...2.0.1
 [2.0.0]: https://github.com/SGG-Modding/Chalk/compare/1.0.0...2.0.0
 [1.0.0]: https://github.com/SGG-Modding/Chalk/compare/83bc308a1a2b20e01b58de57fea4894e8fabc366...1.0.0
