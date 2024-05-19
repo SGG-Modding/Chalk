@@ -9,7 +9,8 @@ local chalk = {}
 ---@param path string name of (or path to) the config file to keep updated
 ---@param default? table lua config table to use as a default
 ---@param descript? table<any,string> recursive table of descriptions of the keys in the config
----@param is_newer? fun(a: any, b:any): sign: number C-style comparison function of your config's `version` field.
+---@param section? string the name of the root section of the resulting `.cfg` file
+---@param is_newer? fun(a: table, b:table): b_newer_than_a: boolean compares the current config to the default to determine which is newer
 ---@return table wrapper a table-like wrapper around the config system
 ---@return table config the actual config object
 function chalk.load(path,default,descript,section,is_newer) end
@@ -21,7 +22,8 @@ function chalk.load(path,default,descript,section,is_newer) end
 ---@param config_lua? string name of (or path to) the `lua` config file to use as a default
 ---@param config_cfg? string name of (or path to) the `cfg` config file to keep updated
 ---@param descript? table<any,string> recursive table of descriptions of the keys in the config
----@param is_newer? fun(a: any, b:any): sign: number C-style comparison function of your config's `version` field.
+---@param section? string the name of the root section of the resulting `.cfg` file
+---@param is_newer? fun(a: table, b:table): b_newer_than_a: boolean compares the current config to the default to determine which is newer
 ---@return table wrapper a table-like wrapper around the config system
 ---@return table config the actual config object
 function chalk.auto(config_lua,config_cfg,descript,section,is_newer) end
