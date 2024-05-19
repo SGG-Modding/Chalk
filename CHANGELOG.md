@@ -7,7 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Retroactively update changelog
+
 ## [2.0.0] - 2024-05-19
+
+### Added
+
+- Added a new interface for working with the .cfg file system
+
+### Removed
+
+- Removed all of the previous interface for .toml files
 
 ## [1.0.0] - 2024-05-15
 
