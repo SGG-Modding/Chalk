@@ -4,7 +4,7 @@ schemaVersion = "0.0.1"
 [package]
 namespace = "SGG_Modding"
 name = "Chalk"
-versionNumber = "2.1.0"
+versionNumber = "2.1.1"
 description = "System for handling config files in ReturnOfModding"
 websiteUrl = "https://github.com/SGG-Modding/Chalk"
 containsNsfwContent = false
