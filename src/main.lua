@@ -13,6 +13,10 @@ local _orig = setmetatable({},{__mode = 'k'})
 local _path = setmetatable({},{__mode = 'k'})
 
 local default_config_lua = 'config.lua'
+local section_root = 'config'
+local section_empty_key = '...'
+local section_empty_value = ''
+local section_empty_description = 'This is section is expandable, add more entries to flesh it out.'
 
 local flat = {
 	string = true,
@@ -20,75 +24,156 @@ local flat = {
 	boolean = true
 }
 
-local section_root = 'config'
+local function startswith(s, start)
+    return s:sub(1, #start) == start
+end
 
-local function find_pair(config,section,key)
-    for k,v in pairs(config.entries) do
-		if k.section == section and k.key == key then
-			return k,v
+local function stringtail(s, start)
+    return s:sub(#start+1)
+end
+
+local function pathstarts(path, start)
+	start = start .. '.'
+    return path:sub(1, #start) == start
+end
+
+local function pathtail(path, start)
+    return path:sub(#start+1):sub(2)
+end
+
+local function pathnext(path, start)
+	if not pathstarts(path, start) then return end
+	local tail = pathtail(path, start)
+	local foot = tail:find('%.')
+	if foot == nil then return tail end
+	return tail:sub(1,foot-1)
+end
+
+local function pathjoin(path, tail)
+	return path .. '.' .. tail
+end
+
+local function findentry(config,section,key)
+    for d,c in pairs(config.entries) do
+		if d.section == section and d.key == key then
+			return c
 		end
     end
+end
+
+local function findchild(config,path)
+	for d in pairs(config.entries) do
+		local dp = pathjoin(d.section,d.key)
+		local dk = pathnext(dp,path)
+		if dk ~= nil then
+			return dk
+		end
+    end
+end
+
+local function merge(k,v,config,descript,section,level)
+	level = (level or 0) + 1
+	if v == nil then
+		error('cannot set a config entry to nil',level)
+	end
+	if k == nil then
+		error('cannot set a config with nil key',level)
+	end
+	local c = findentry(config,section,k)
+	local t = type(v)
+	local d = descript and descript[k]
+	if flat[t] then
+		if c == nil then
+			config:bind(section,k,v,d or '')
+		else
+			c:set(v)
+		end
+	else
+		public.merge(config,v,d,section .. '.' .. k)
+		local pk = pathjoin(section,k)
+		if findchild(config,pk) == nil then
+			config:bind(pk,section_empty_key,section_empty_value,section_empty_description)
+		end
+	end
 end
 
 local create_wrapper
 
 local _meta = {
 	__index = function(s,k)
-		local _,e = find_pair(_orig[s],_path[s],k)
+		if k == section_empty_key then return nil end
+		if type(k) == 'number' then
+			k = tostring(k)
+		end
+		local o = _orig[s]
+		local p = _path[s]
+		local e = findentry(o,p,k)
 		if e == nil then
-			return create_wrapper(s,k)
+			local pk = pathjoin(p,k)
+			if findchild(_orig[s],pk) then 
+				return create_wrapper(s,k)
+			end
 		else
 			return e:get()
 		end
+		return nil
 	end,
 	__newindex = function(s,k,v)
-		local _,e = find_pair(_orig[s],_path[s],k)
-		if e == nil then
-			e:bind(_path[s],k,v)
-		else
-			e:set(v)
+		if k == section_empty_key then return end
+		merge(k,v,_orig[s],nil,_path[s],2)
+	end,
+	__len = function(s)
+		local es = _orig[s].entries
+		local p = _path[s]
+		local n = 0
+		for d in pairs(es) do
+			local dp = pathjoin(d.section,d.key)
+			local dk = pathnext(dp,p)
+			local i = tonumber(dk)
+			if i ~= nil and i > n then n = i end
 		end
+		return n
+	end,
+	__next = function(s,k)
+		-- TODO: improve this
+		local es = {}
+		local p = _path[s]
+		for d,e in pairs(_orig[s].entries) do
+			if d.key ~= section_empty_key then
+				local dk = pathnext(pathjoin(d.section,d.key),p)
+				if dk ~= nil then
+					es[dk] = s[dk]
+				end
+			end
+		end
+		return next(es,k)
+	end,
+	__inext = function(s,i)
+		if i == nil then i = 0 end
+		if i < 0 or i >= #s then return end
+		i = i + 1
+		return i,s[i]
 	end,
 	__pairs = function(s)
-		local es = _orig[s].entries
+		local es = {}
 		local p = _path[s]
-		return function(_,k)
-			while true do
-				local d,e
-				if k == nil then
-					d,e = next(es)
-				else
-					d,e = next(es,p .. '.' .. k)
-				end
-				if d == nil then return end
-				k = d.key
-				if p == d.section then
-					return k,e:get()
+		for d,e in pairs(_orig[s].entries) do
+			if d.key ~= section_empty_key then
+				local dk = pathnext(pathjoin(d.section,d.key),p)
+				if dk ~= nil then
+					es[dk] = s[dk]
 				end
 			end
-		end, s
+		end
+		return pairs(es)
 	end,
 	__ipairs = function(s)
-		local es = _orig[s].entries
-		local p = _path[s]
-		return function(_,k)
-			while true do
-				local d,e
-				if type(k) == 'number' then
-					k = tostring(k)
-				end
-				if k == nil then
-					d,e = next(es)
-				else
-					d,e = next(es,p .. '.' .. k)
-				end
-				if d == nil then return end
-				k = d.key
-				local i = tonumber(k)
-				if i ~= nil and p == d.section then
-					return i,e:get()
-				end
-			end
+		local n = #s
+		return function(_,i)
+			if i == nil then i = 0 end
+			if i < 0 or i >= n then return end
+			i = i + 1
+			return i,s[i]
 		end, s
 	end
 }
@@ -169,31 +254,16 @@ function public.load(path,default,descript,section,is_newer)
 	end
 end
 
-local function merge(k,v,config,default,descript,section)
-	local _,c = find_pair(config,section,k)
-	local t = type(v)
-	local d = descript and descript[k]
-	if flat[t] then
-		if c == nil then
-			c = config:bind(section,k,v,d or '')
-		else
-			c:set(v)
-		end
-	else
-		public.merge(config,v,d,section .. '.' .. k)
-	end
-end
-
 function public.merge(config,default,descript,section)
 	config = public.original(config)
 	section = section or section_root
 	for i,v in ipairs(default) do
 		local k = tostring(i)
-		merge(k,v,config,default,descript,section)
+		merge(k,v,config,descript,section,2)
 	end
 	for k,v in pairs(default) do
 		if type(k) == 'string' then
-			merge(k,v,config,default,descript,section)
+			merge(k,v,config,descript,section,2)
 		end
 	end
 	config:save()

@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Added length operator to wrapper tables
+
+### Changed
+
+- Changed the fallback behaviour of wrapper tables so missing keys are nil
+- Merges add placeholders so empty tables can be tracked
+
+### Fixed
+
+- Fixed iterating over config wrapper tables
+
 ## [2.0.2] - 2024-05-19
 
 ### Changed
