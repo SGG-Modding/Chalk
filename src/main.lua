@@ -101,6 +101,7 @@ local create_wrapper
 
 local _meta = {
 	__index = function(s,k)
+		if k == nil then return nil end
 		if k == section_empty_key then return nil end
 		if type(k) == 'number' then
 			k = tostring(k)
