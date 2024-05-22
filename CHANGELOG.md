@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Indexing wrapper tables with nil will return nil instead of erroring.
+
 ## [2.1.0] - 2024-05-22
 
 ### Added
